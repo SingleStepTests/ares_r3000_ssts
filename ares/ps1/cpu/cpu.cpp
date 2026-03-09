@@ -17,19 +17,19 @@ CPU cpu;
 #include "serialization.cpp"
 #include "disassembler.cpp"
 
-auto CPU::load(Node::Object parent) -> void {
+/*auto CPU::load(Node::Object parent) -> void {
   node = parent->append<Node::Object>("CPU");
   //ram.allocate(2_MiB);
   //scratchpad.allocate(1_KiB);
   gte.constructTable();
   debugger.load(node);
-}
+}*/
 
 auto CPU::unload() -> void {
   debugger = {};
   //scratchpad.reset();
   //ram.reset();
-  node.reset();
+  //node.reset();
 }
 
 auto CPU::main() -> void {
@@ -82,19 +82,6 @@ auto CPU::waitDMA() -> void {
 }
 
 auto CPU::instruction() -> void {
-  if constexpr(Accuracy::CPU::Breakpoints) {
-    if(unlikely(breakpoint.testCode(ipu.pc))) {
-        return (void)instructionEpilogue();
-    }
-  }
-
-  if constexpr(Accuracy::CPU::AddressErrors) {
-    if(unlikely(ipu.pc & 3)) {
-      exception.address<Read>(ipu.pc);
-        return (void)instructionEpilogue();
-    }
-  }
-
   u32 instruction = fetch(ipu.pc);
   if(exception()) return (void)instructionEpilogue();
 
@@ -106,7 +93,7 @@ auto CPU::instruction() -> void {
 auto CPU::instructionPrologue(u32 instruction) -> void {
   pipeline.address = ipu.pc;
   pipeline.instruction = instruction;
-  debugger.instruction();
+  //debugger.instruction();
 }
 
 auto CPU::instructionEpilogue() -> void {

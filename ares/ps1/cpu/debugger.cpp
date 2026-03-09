@@ -1,8 +1,8 @@
-auto CPU::Debugger::load(Node::Object parent) -> void {
-}
+//auto CPU::Debugger::load(Node::Object parent) -> void {
+//}
 
 auto CPU::Debugger::instruction() -> void {
-  if(!tracer.instruction->enabled()) return;
+  /*if(!tracer.instruction->enabled()) return;
 
   u32 address = cpu.pipeline.address;
   u32 instruction = cpu.pipeline.instruction;
@@ -10,11 +10,11 @@ auto CPU::Debugger::instruction() -> void {
     cpu.disassembler.showColors = 0;
     tracer.instruction->notify(cpu.disassembler.disassemble(address, instruction), {});
     cpu.disassembler.showColors = 1;
-  }
+  }*/
 }
 
 auto CPU::Debugger::exception(u8 code) -> void {
-  if(!tracer.exception->enabled()) return;
+  /*if(!tracer.exception->enabled()) return;
 
   string type;
   if(code ==  0) type = "Interrupt";
@@ -32,11 +32,11 @@ auto CPU::Debugger::exception(u8 code) -> void {
   if(code ==  0) return;  //interrupt exceptions are logged by interrupt() instead
   if(code ==  8) return;  //ignore SYSCALL exceptions (they are used often to call BIOS functions)
 
-  tracer.exception->notify({type, " PC:", hex(cpu.ipu.pc, 8L)});
+  tracer.exception->notify({type, " PC:", hex(cpu.ipu.pc, 8L)});*/
 }
 
 auto CPU::Debugger::interrupt(u8 mask) -> void {
-  if(!tracer.interrupt->enabled()) return;
+  /*if(!tracer.interrupt->enabled()) return;
 
   string source;
   if(mask & 0x01) {
@@ -59,35 +59,35 @@ auto CPU::Debugger::interrupt(u8 mask) -> void {
     if(PlayStation::interrupt.pio.poll()) source.append("PIO,");
   }
   source.trimRight(",", 1L);
-  tracer.interrupt->notify(source);
+  tracer.interrupt->notify(source);*/
 }
 
 auto CPU::Debugger::messageChar(char c) -> void {
-  if(!tracer.message->enabled()) return;
-  tracer.message->notify(c);
+  /*if(!tracer.message->enabled()) return;
+  tracer.message->notify(c);*/
 }
 
 auto CPU::Debugger::messageText(u32 address) -> void {
-  if(!tracer.message->enabled()) return;
+  /*if(!tracer.message->enabled()) return;
 
   for(u32 index : range(512)) {
     char data = bus.read<Byte>(address + index);
     if(!data) break;
     messageChar(data);
-  }
+  }*/
 }
 
 auto CPU::Debugger::message() -> void {
-  if(!tracer.message->enabled()) return;
+  /*if(!tracer.message->enabled()) return;
 
   if(cpu.ipu.pc == 0xa0 && cpu.ipu.r[9] == 0x3c) messageChar((char)cpu.ipu.r[4]);
   if(cpu.ipu.pc == 0xb0 && cpu.ipu.r[9] == 0x3d) messageChar((char)cpu.ipu.r[4]);
   if(cpu.ipu.pc == 0xa0 && cpu.ipu.r[9] == 0x3e) messageText(cpu.ipu.r[4]);
-  if(cpu.ipu.pc == 0xb0 && cpu.ipu.r[9] == 0x3f) messageText(cpu.ipu.r[4]);
+  if(cpu.ipu.pc == 0xb0 && cpu.ipu.r[9] == 0x3f) messageText(cpu.ipu.r[4]);*/
 }
 
 auto CPU::Debugger::function() -> void {
-  if(!tracer.function->enabled()) return;
+  /*if(!tracer.function->enabled()) return;
 
   u32 pc = cpu.ipu.pc & 0x1fff'ffff;
   u32 p0 = cpu.ipu.r[4];
@@ -182,7 +182,7 @@ auto CPU::Debugger::function() -> void {
     case 0x0301: return "libmathDomainError";
     case 0x0302: return "libmathRangeError";
     }
-    return {"$", hex(value, 4L)};
+
   };
 
   #define op_(id, fn) case id: call = {fn, "(...)"}; break
@@ -448,6 +448,7 @@ auto CPU::Debugger::function() -> void {
   op_(0x1b, "KernelRedirect");
   op0(0x1c, "AdjustA0Table");
   op0(0x1d, "get_card_find_mode");
+
   }
 
   //todo: handle break function calls
@@ -462,4 +463,5 @@ auto CPU::Debugger::function() -> void {
   if(call) {
     tracer.function->notify(call);
   }
+  */
 }

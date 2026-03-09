@@ -1,14 +1,13 @@
 //LSI CoreWare CW33300 (MIPS R3000A core)
-using namespace ares;
 struct CPU  {
-  Node::Object node;
+  //Node::Object node;
   //Memory::Writable ram;
   //Memory::Writable scratchpad;
   //Memory::Readable exe;
 
   struct Debugger {
     //debugger.cpp
-    auto load(Node::Object) -> void;
+    //auto load(Node::Object) -> void;
     auto instruction() -> void;
     auto exception(u8 code) -> void;
     auto interrupt(u8 mask) -> void;
@@ -16,16 +15,16 @@ struct CPU  {
     auto function() -> void;
 
     struct Memory {
-      Node::Debugger::Memory ram;
-      Node::Debugger::Memory scratchpad;
+      //Node::Debugger::Memory ram;
+      //Node::Debugger::Memory scratchpad;
     } memory;
 
     struct Tracer {
-      Node::Debugger::Tracer::Instruction instruction;
-      Node::Debugger::Tracer::Notification exception;
-      Node::Debugger::Tracer::Notification interrupt;
-      Node::Debugger::Tracer::Notification message;
-      Node::Debugger::Tracer::Notification function;
+      //Node::Debugger::Tracer::Instruction instruction;
+      //Node::Debugger::Tracer::Notification exception;
+      //Node::Debugger::Tracer::Notification interrupt;
+      //Node::Debugger::Tracer::Notification message;
+      //Node::Debugger::Tracer::Notification function;
     } tracer;
 
   private:
@@ -37,7 +36,7 @@ struct CPU  {
   using cu32 = const u32;
 
   //cpu.cpp
-  auto load(Node::Object) -> void;
+  //auto load(Node::Object) -> void;
   auto unload() -> void;
 
   auto main() -> void;

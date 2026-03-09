@@ -74,7 +74,7 @@ auto System::load(Node::System& root, string name) -> bool {
   fastBoot = node->append<Node::Setting::Boolean>("Fast Boot", false);
 
   memory.load(node);
-  cpu.load(node);
+  //cpu.load(node);
   gpu.load(node);
   spu.load(node);
   mdec.load(node);

@@ -1,5 +1,7 @@
 if(arm7tdmi IN_LIST ARES_COMPONENTS_LIST)
-  add_executable(arm7tdmi arm7tdmi.cpp)
+  add_executable(arm7tdmi arm7tdmi.cpp
+          ps1_stub.cpp
+          ps1_stub.h)
 
   target_include_directories(arm7tdmi PRIVATE ${CMAKE_SOURCE_DIR})
 
@@ -8,28 +10,14 @@ if(arm7tdmi IN_LIST ARES_COMPONENTS_LIST)
   target_sources(
     arm7tdmi
     PRIVATE
-      ${ARM7TDMI_SOURCE_DIR}/breakpoints.cpp
-      ${ARM7TDMI_SOURCE_DIR}/cpu.hpp
-      ${ARM7TDMI_SOURCE_DIR}/cpu.cpp
-      ${ARM7TDMI_SOURCE_DIR}/debugger.cpp
-      ${ARM7TDMI_SOURCE_DIR}/delay-slots.cpp
-      ${ARM7TDMI_SOURCE_DIR}/disassembler.cpp
-      ${ARM7TDMI_SOURCE_DIR}/exceptions.cpp
-      ${ARM7TDMI_SOURCE_DIR}/icache.cpp
-      ${ARM7TDMI_SOURCE_DIR}/interpreter.cpp
-          ${ARM7TDMI_SOURCE_DIR}/interpreter-gte.cpp
-          ${ARM7TDMI_SOURCE_DIR}/interpreter-ipu.cpp
-          ${ARM7TDMI_SOURCE_DIR}/interpreter-scc.cpp
-      ${ARM7TDMI_SOURCE_DIR}/memory.cpp
-      ${ARM7TDMI_SOURCE_DIR}/serialization.cpp
-      clone-tests.sh
-      run-tests.sh
+        ${ARM7TDMI_SOURCE_DIR}/cpu.cpp
+          ps1_stub.cpp
   )
 
   set_target_properties(arm7tdmi PROPERTIES FOLDER tests PREFIX "")
-  get_target_property(arm7tdmi_SOURCES arm7tdmi SOURCES)
-  list(REMOVE_ITEM arm7tdmi_SOURCES arm7tdmi.cpp)
-  set_source_files_properties(${arm7tdmi_SOURCES} PROPERTIES HEADER_FILE_ONLY TRUE)
+  #get_target_property(arm7tdmi_SOURCES arm7tdmi SOURCES)
+  #list(REMOVE_ITEM arm7tdmi_SOURCES arm7tdmi.cpp)
+  #set_source_files_properties(${arm7tdmi_SOURCES} PROPERTIES HEADER_FILE_ONLY TRUE)
 
   target_enable_subproject(arm7tdmi "arm7tdmi processor test harness")
 
