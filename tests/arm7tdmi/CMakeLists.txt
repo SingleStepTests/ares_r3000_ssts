@@ -3,22 +3,25 @@ if(arm7tdmi IN_LIST ARES_COMPONENTS_LIST)
 
   target_include_directories(arm7tdmi PRIVATE ${CMAKE_SOURCE_DIR})
 
-  set(ARM7TDMI_SOURCE_DIR "${CMAKE_SOURCE_DIR}/ares/component/processor/arm7tdmi")
+  set(ARM7TDMI_SOURCE_DIR "${CMAKE_SOURCE_DIR}/ares/ps1/cpu")
 
   target_sources(
     arm7tdmi
     PRIVATE
-      ${ARM7TDMI_SOURCE_DIR}/algorithms.cpp
-      ${ARM7TDMI_SOURCE_DIR}/arm7tdmi.hpp
+      ${ARM7TDMI_SOURCE_DIR}/breakpoints.cpp
+      ${ARM7TDMI_SOURCE_DIR}/cpu.hpp
+      ${ARM7TDMI_SOURCE_DIR}/cpu.cpp
+      ${ARM7TDMI_SOURCE_DIR}/debugger.cpp
+      ${ARM7TDMI_SOURCE_DIR}/delay-slots.cpp
       ${ARM7TDMI_SOURCE_DIR}/disassembler.cpp
-      ${ARM7TDMI_SOURCE_DIR}/instruction.cpp
-      ${ARM7TDMI_SOURCE_DIR}/instructions-arm.cpp
-      ${ARM7TDMI_SOURCE_DIR}/instructions-thumb.cpp
+      ${ARM7TDMI_SOURCE_DIR}/exceptions.cpp
+      ${ARM7TDMI_SOURCE_DIR}/icache.cpp
+      ${ARM7TDMI_SOURCE_DIR}/interpreter.cpp
+          ${ARM7TDMI_SOURCE_DIR}/interpreter-gte.cpp
+          ${ARM7TDMI_SOURCE_DIR}/interpreter-ipu.cpp
+          ${ARM7TDMI_SOURCE_DIR}/interpreter-scc.cpp
       ${ARM7TDMI_SOURCE_DIR}/memory.cpp
-      ${ARM7TDMI_SOURCE_DIR}/registers.cpp
       ${ARM7TDMI_SOURCE_DIR}/serialization.cpp
-      ${ARM7TDMI_SOURCE_DIR}/algorithms.cpp
-      ${ARM7TDMI_SOURCE_DIR}/arm7tdmi.hpp
       clone-tests.sh
       run-tests.sh
   )
