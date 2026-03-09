@@ -144,15 +144,15 @@ auto System::power(bool reset) -> void {
   dma.power(reset);
   timer.power(reset);
 
-  cpu.exe.reset();
+  /*cpu.exe.reset();
   if(disc.executable()) {
     if(auto fp = disc.pak->read("program.exe")) {
       cpu.exe.allocate(fp->size());
       cpu.exe.load(fp);
     }
-  }
+  }*/
 
-  scheduler.power(cpu);
+  //scheduler.power(cpu);
 }
 
 }

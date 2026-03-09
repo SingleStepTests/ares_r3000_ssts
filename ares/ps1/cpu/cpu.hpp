@@ -1,10 +1,10 @@
 //LSI CoreWare CW33300 (MIPS R3000A core)
-
-struct CPU : Thread {
+using namespace ares;
+struct CPU  {
   Node::Object node;
-  Memory::Writable ram;
-  Memory::Writable scratchpad;
-  Memory::Readable exe;
+  //Memory::Writable ram;
+  //Memory::Writable scratchpad;
+  //Memory::Readable exe;
 
   struct Debugger {
     //debugger.cpp
@@ -46,7 +46,7 @@ struct CPU : Thread {
   auto ioSynchronize() -> void;
   auto waitDMA() -> void;
 
-  alwaysinline auto instruction() -> void;
+  auto instruction() -> void;
   auto instructionPrologue(u32 instruction) -> void;
   auto instructionEpilogue() -> void;
   auto instructionHook() -> void;
@@ -482,6 +482,7 @@ struct CPU : Thread {
   auto MVMVA(bool lm, u8 tv, u8 mv, u8 mm, u8 sf) -> void;
   auto MVMVA_(bool lm, u8 MmMvTv, u8 sf) -> void;
   template<u32> auto NC(const GTE::v16&) -> void;
+#undef NCCS
   auto NCCS(bool lm, u8 sf) -> void;
   auto NCCT(bool lm, u8 sf) -> void;
   auto NCDS(bool lm, u8 sf) -> void;

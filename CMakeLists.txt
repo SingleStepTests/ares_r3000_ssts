@@ -18,7 +18,7 @@ add_subdirectory(hiro)
 # gersemi: off
 set(
   ARES_CORES
-  a26 fc sfc sg ms md ps1 pce ng msx cv myvision gb gba ws ngp spec n64
+  ps1 gba
   CACHE STRING "List of systems to be built by the project"
 )
 # gersemi: on
@@ -27,7 +27,7 @@ add_subdirectory(ares)
 add_subdirectory(mia)
 add_subdirectory(desktop-ui)
 
-option(ARES_BUILD_OPTIONAL_TARGETS "Include supplemental tools and tests" OFF)
+option(ARES_BUILD_OPTIONAL_TARGETS "Include supplemental tools and tests" ON)
 
 if(ARES_BUILD_OPTIONAL_TARGETS)
   add_subdirectory(tests/arm7tdmi)

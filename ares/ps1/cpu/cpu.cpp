@@ -19,16 +19,16 @@ CPU cpu;
 
 auto CPU::load(Node::Object parent) -> void {
   node = parent->append<Node::Object>("CPU");
-  ram.allocate(2_MiB);
-  scratchpad.allocate(1_KiB);
+  //ram.allocate(2_MiB);
+  //scratchpad.allocate(1_KiB);
   gte.constructTable();
   debugger.load(node);
 }
 
 auto CPU::unload() -> void {
   debugger = {};
-  scratchpad.reset();
-  ram.reset();
+  //scratchpad.reset();
+  //ram.reset();
   node.reset();
 }
 
@@ -66,8 +66,8 @@ auto CPU::synchronize() -> void {
   timer.step(accruedCycles);
   disc.step(accruedCycles);
   peripheral.step(accruedCycles);
-  Thread::step(accruedCycles);
-  Thread::synchronize();
+  //Thread::step(accruedCycles);
+  //Thread::synchronize();
 
   accruedCycles = 0;
   cyclesUntilForcedSync = 0;
@@ -132,7 +132,7 @@ auto CPU::instructionEpilogue() -> void {
 }
 
 auto CPU::instructionHook() -> void {
-  //fast-boot or executable side-loading
+  /*//fast-boot or executable side-loading
   if(ipu.pd == 0x8003'0000 && !exeLoaded) {
     exeLoaded = 1;
     if(!disc.cd || disc.audioCD()) {
@@ -151,13 +151,11 @@ auto CPU::instructionHook() -> void {
     } else if(system.fastBoot->value()) {
       ipu.pd = ipu.r[31];
     }
-  }
+  }*/
 }
 
 auto CPU::power(bool reset) -> void {
-  Thread::create(system.frequency(), std::bind_front(&CPU::main, this));
-  random.array({ram.data, ram.size});
-  random.array({scratchpad.data, scratchpad.size});
+  //Thread::create(system.frequency(), std::bind_front(&CPU::main, this));
 
   accruedCycles = 0;
   cyclesUntilForcedSync = 0;

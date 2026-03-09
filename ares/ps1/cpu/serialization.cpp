@@ -1,8 +1,8 @@
 auto CPU::serialize(serializer& s) -> void {
-  Thread::serialize(s);
+  //Thread::serialize(s);
 
-  s(ram);
-  s(scratchpad);
+  //s(ram);
+  //s(scratchpad);
 
   s(exeLoaded);
   s(accruedCycles);

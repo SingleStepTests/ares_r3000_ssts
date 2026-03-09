@@ -1,33 +1,4 @@
 auto CPU::Debugger::load(Node::Object parent) -> void {
-  memory.ram = parent->append<Node::Debugger::Memory>("CPU RAM");
-  memory.ram->setSize(cpu.ram.size);
-  memory.ram->setRead([&](u32 address) -> u8 {
-    return cpu.ram.readByte(address);
-  });
-  memory.ram->setWrite([&](u32 address, u8 data) -> void {
-    return cpu.ram.writeByte(address, data);
-  });
-
-  memory.scratchpad = parent->append<Node::Debugger::Memory>("CPU Scratchpad");
-  memory.scratchpad->setSize(cpu.scratchpad.size);
-  memory.scratchpad->setRead([&](u32 address) -> u8 {
-    return cpu.scratchpad.readByte(address);
-  });
-  memory.scratchpad->setWrite([&](u32 address, u8 data) -> void {
-    return cpu.scratchpad.writeByte(address, data);
-  });
-
-  tracer.instruction = parent->append<Node::Debugger::Tracer::Instruction>("Instruction", "CPU");
-  tracer.instruction->setAddressBits(32, 2);
-  tracer.instruction->setDepth(32);
-
-  tracer.exception = parent->append<Node::Debugger::Tracer::Notification>("Exception", "CPU");
-  tracer.interrupt = parent->append<Node::Debugger::Tracer::Notification>("Interrupt", "CPU");
-  tracer.message = parent->append<Node::Debugger::Tracer::Notification>("Message", "CPU");
-  tracer.function = parent->append<Node::Debugger::Tracer::Notification>("Function", "CPU");
-
-  tracer.message->setAutoLineBreak(false);
-  tracer.message->setTerminal(true);
 }
 
 auto CPU::Debugger::instruction() -> void {
