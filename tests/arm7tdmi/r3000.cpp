@@ -8,7 +8,7 @@ using namespace nall;
 #include <nall/main.hpp>
 
 #include "ps1_stub.h"
-#define NUMTESTS 2
+#define NUMTESTS 1000
 
 #include <ares/ares.hpp>
 
@@ -113,6 +113,7 @@ enum : u64 { NOACTION = 0, READ = 1, WRITE = 2, FETCH = 4};
 struct test_cycle {
     i64 addr{};
     u32 actions{};
+    u32 sz{};
     i64 val{};
 };
 
@@ -197,8 +198,6 @@ void copy_state_from_cpu(test_state &s) {
     }
 }
 
-
-
 void copy_state_to_cpu(test_state &s) {
     cpu.accruedCycles = 0;
     for (u32 i = 0; i < 32; i++) {
@@ -239,7 +238,18 @@ u32 do_fetch(void *p, u32 addr, u8 sz, bool use_cycles) {
     //if ((num >= 0) && (num <= 3)): return test.opcodes[num];
     //return test.opcodes[4];
     //if (addr < test.base_addr)
-    return 0;
+    u32 v;
+    if (addr == test.opcode_addr) v = test.opcode;
+    else v = sfc32(rstate);
+    if (use_cycles) {
+        auto &t = test.cycles[cpu.accruedCycles];
+        if (t.actions != NOACTION) printf("\nWARN DUPE CYCLE");
+        t.actions |= FETCH;
+        t.addr = addr;
+        t.sz = sz;
+        t.val = v;
+    }
+    return v;
 }
 
 u32 do_read(void *p, u32 addr, u8 sz) {
@@ -247,7 +257,16 @@ u32 do_read(void *p, u32 addr, u8 sz) {
     //if test.read_addr != addr: alert issue
     //test.did_read = true;
     //return test.read_val
-    return 0;
+    u32 v;
+    if (addr == test.opcode_addr) v = test.opcode;
+    else v = sfc32(rstate);
+    auto &t = test.cycles[cpu.accruedCycles];
+    if (t.actions != NOACTION) printf("\nWARN DUPE CYCLE");
+    t.actions |= READ;
+    t.addr = addr;
+    t.sz = sz;
+    t.val = v;
+    return v;
 }
 
 void do_write(void *p, u32 addr, u8 sz, u32 val) {
@@ -255,6 +274,13 @@ void do_write(void *p, u32 addr, u8 sz, u32 val) {
     //if test.write_addr != addr: alert issue
     //if test.write_val != val: alert issue
     //test.did_write = true
+    u32 v;
+    auto &t = test.cycles[cpu.accruedCycles];
+    if (t.actions != NOACTION) printf("\nWARN DUPE CYCLE");
+    t.actions |= WRITE;
+    t.addr = addr;
+    t.sz = sz;
+    t.val = val;
 }
 
 
@@ -270,6 +296,7 @@ u32 gen_opcode(testitem &t) {
         u32 b05 = (t.first_op == 0) ? t.second_op : (sfc32(rstate) & 63);
         bits = (sfc32(rstate) & 0b00000011111111111111111111000000) | b05 | (t.first_op << 26);
     }
+    //printf("\n%s %08x", t.name, bits);
     return bits;
 }
 
@@ -297,12 +324,17 @@ void write_test(FILE *fp) {
     write_state(test.final, fp);
     cW32(test.num_cycles);
     for (u32 i = 0; i < test.num_cycles; i++) {
-        // TODO: write test state here
+        auto &c = test.cycles[i];
+        cW32(c.val);
+        cW32(c.actions);
+        cW32(c.addr);
+        cW32(c.sz);
     }
 }
 
 void make_opcode_test(testitem &t) {
     char PATH[500];
+    printf("\n\nMAKE TEST %s", t.name);
     snprintf(PATH, sizeof(PATH), "/Users/dave/dev/r3000/%s.json.bin", t.name);
     FILE *fp = fopen(PATH, "wb");
     u32 num = NUMTESTS;
@@ -322,8 +354,12 @@ void make_opcode_test(testitem &t) {
             c.addr = -1;
             c.actions = NOACTION;
         }
-
         cpu.accruedCycles = 0;
+        if (strcmp(t.name, "LW") == 0) {
+            int a = 4;
+            a++;
+        }
+
         copy_state_to_cpu(test.initial);
 
         cpu.instruction();
@@ -332,12 +368,12 @@ void make_opcode_test(testitem &t) {
 
         write_test(fp);
     }
+    fclose(fp);
 }
 
 
 auto nall::main(Arguments arguments) -> void {
     //sfc32_seed(test.name, ts.rstate);
-    ares::PlayStation::CPU cpu;
     cpu.tptr = static_cast<void *>(&test);
     cpu.test_read = &do_read;
     cpu.test_write = &do_write;

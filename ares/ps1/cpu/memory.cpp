@@ -1,31 +1,31 @@
 //read code from the bus
 inline auto CPU::fetch(u32 address) -> u32 {
-  printf("\nCPU fetch!");
-  test_fetch(tptr, addr, 4, true);
+  //printf("\nCPU fetch!");
+  u32 v = test_fetch(tptr, address, 4, true);
   accruedCycles++;
-  return 0;
+  return v;
 }
 
 //peek at the next instruction, does not consume cycles
 inline auto CPU::peek(u32 address) -> u32 {
-  test_fetch(tptr, addr, 4, false);
-  printf("\nCPU peek!");
-  return 0;
+  u32 v = test_fetch(tptr, address, 4, false);
+  //printf("\nCPU peek!");
+  return v;
 }
 
 //read data from the bus
 template<u32 Size>
 inline auto CPU::read(u32 address) -> u32 {
-  printf("\nCPU read %d!", Size);
-  test_read(tptr, addr, Size);
+  //printf("\nCPU read %d!", Size);
+  u32 v = test_read(tptr, address, Size);
   accruedCycles++;
-  return 0;
+  return v;
 }
 
 //write data to the bus
 template<u32 Size>
 inline auto CPU::write(u32 address, u32 data) -> void {
-  printf("\nCPU write!");
-  test_write(tptr, addr, Size, data);
+  //printf("\nCPU write!");
+  test_write(tptr, address, Size, data);
   accruedCycles++;
 }
