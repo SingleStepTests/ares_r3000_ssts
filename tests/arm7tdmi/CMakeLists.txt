@@ -1,7 +1,9 @@
 if(arm7tdmi IN_LIST ARES_COMPONENTS_LIST)
-  add_executable(arm7tdmi arm7tdmi.cpp
+  add_executable(arm7tdmi r3000.cpp
           ps1_stub.cpp
-          ps1_stub.h)
+          ps1_stub.h
+          myrandom.cpp
+          myrandom.h)
 
   target_include_directories(arm7tdmi PRIVATE ${CMAKE_SOURCE_DIR})
 
@@ -25,5 +27,5 @@ if(arm7tdmi IN_LIST ARES_COMPONENTS_LIST)
   set(CONSOLE TRUE)
   ares_configure_executable(arm7tdmi)
 
-  source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES arm7tdmi.cpp)
+  source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES r3000.cpp)
 endif()

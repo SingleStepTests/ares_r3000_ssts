@@ -83,7 +83,10 @@ auto CPU::waitDMA() -> void {
 
 auto CPU::instruction() -> void {
   u32 instruction = fetch(ipu.pc);
-  if(exception()) return (void)instructionEpilogue();
+  if(exception()) {
+    printf("\nWARN THERE WAS AN EXCEPTION!");
+    return (void)instructionEpilogue();
+  }
 
   instructionPrologue(instruction);
   decoderEXECUTE();

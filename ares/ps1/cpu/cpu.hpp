@@ -84,6 +84,12 @@ struct CPU  {
     u32 interrupt;
   } delay;
 
+  void *tptr{};
+  u32 (*test_fetch)(void *ptr, u32 addr, u8 sz, bool uses_cycles);
+  u32 (*test_read)(void *ptr, u32 addr, u8 sz);
+  void (*test_write)(void *ptr, u32 addr, u8 sz, u32 val);
+
+
   auto load(u32& target) const -> u32;
   auto load(u32& target, u32 source) -> void;
   auto store(u32& target, u32 source) -> void;
