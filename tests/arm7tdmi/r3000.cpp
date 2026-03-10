@@ -335,7 +335,7 @@ void write_test(FILE *fp) {
 void make_opcode_test(testitem &t) {
     char PATH[500];
     printf("\n\nMAKE TEST %s", t.name);
-    snprintf(PATH, sizeof(PATH), "/Users/dave/dev/r3000/%s.json.bin", t.name);
+    snprintf(PATH, sizeof(PATH), "/Users/dave/dev/r3000/v1/%s.json.bin", t.name);
     FILE *fp = fopen(PATH, "wb");
     u32 num = NUMTESTS;
     cW32(num);
