@@ -111,10 +111,10 @@ testitem testitems[] = {
 enum : u64 { NOACTION = 0, READ = 1, WRITE = 2, FETCH = 4};
 
 struct test_cycle {
-    i64 addr{};
-    u32 actions{};
-    u32 sz{};
-    i64 val{};
+    i64 addr{}; // 3
+    u32 actions{}; // 2
+    u32 sz{}; // 4
+    i64 val{}; // 1
 };
 
 struct R3000_test {
@@ -341,9 +341,15 @@ void make_opcode_test(testitem &t) {
     cW32(num);
     for (u32 i = 0; i < NUMTESTS; i++) {
         snprintf(test.name, sizeof(test.name), "%s $%03x", t.name, i);
+        u8 ml = strlen(test.name);
+        cW32(ml);
         assert(strlen(test.name) < 50);
         fwrite(test.name, 50, 1, fp);
         sfc32_seed(test.name, rstate);
+        // Prime the pump!
+        for (u32 i = 0; i < 20; i++) {
+            sfc32(rstate);
+        }
         random_initial_state(test.initial);
         test.opcode_addr = sfc32(rstate) & 0xEFFFFFFC;
         test.opcode = gen_opcode(t);
