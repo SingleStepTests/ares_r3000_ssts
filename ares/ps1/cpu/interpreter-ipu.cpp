@@ -183,7 +183,7 @@ auto CPU::LWR(u32& rt, cu32& rs, s16 imm) -> void {
     break;
   case 3:
     data &= 0xffffff00;
-    data |= read<Byte>(address & ~3 | 3) <<  0; if(exception()) break;
+    data |= read<Byte>(address & ~3 | 3) & 0xFF; if(exception()) break;
     break;
   }
   load(rt, data);

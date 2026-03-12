@@ -30,7 +30,8 @@ inline auto CPU::read(u32 address) -> u32 {
     }
   }
 
-  u32 v = test_read(tptr, address, Size);
+  static constexpr u32 masksz[5] = { 0, 0xFF, 0xFFFF, 0, 0xFFFFFFFF};
+  u32 v = test_read(tptr, address, Size) & masksz[Size];
 
   accruedCycles++;
   return v;

@@ -106,6 +106,7 @@ testitem testitems[] = {
 (testitem) { .name="NOR", .first_op=0x00, .second_op=0x27 },
 (testitem) { .name="SLT", .first_op=0x00, .second_op=0x2A },
 (testitem) { .name="SLTU", .first_op=0x00, .second_op=0x2B },
+    (testitem) { .name="RFE", .first_op=0xFE, .second_op=0x01}
 };
 
 enum : u64 { NOACTION = 0, READ = 1, WRITE = 2, FETCH = 4};
@@ -313,7 +314,11 @@ void do_write(void *p, u32 addr, u8 sz, u32 val) {
 
 u32 gen_opcode(testitem &t) {
     u32 bits;
-    if (t.first_op == 1) { // BLTZ, BGEZ, BLTZAL, BGEZAL aka BCondZ
+    if (t.first_op == 0xFE) {
+        // RFE
+
+    }
+    else if (t.first_op == 1) { // BLTZ, BGEZ, BLTZAL, BGEZAL aka BCondZ
         bits = sfc32(rstate) & 0b00000011111000001111111111111111;
         bits |= (1 << 26);
         u32 bits5 = (sfc32(rstate) & 31);
