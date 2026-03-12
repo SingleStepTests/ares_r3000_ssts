@@ -245,6 +245,7 @@ void copy_state_to_cpu(test_state &s) {
         cpu.delay.branch[0].address = s.cpu.delay.branch.target;
         cpu.delay.branch[0].slot = s.cpu.delay.branch.slot;
         cpu.delay.branch[0].take = s.cpu.delay.branch.take;
+        cpu.ipu.pd = s.cpu.delay.branch.target;
     }
     if (s.cpu.delay.load.target != -1) {
         cpu.delay.load[0].target = &cpu.ipu.r[s.cpu.delay.load.target];
