@@ -108,10 +108,10 @@ auto CPU::instructionEpilogue() -> void {
   processDelayBranch();
   ipu.r[0] = 0;  //it's faster to allow assigning to r0 and then clearing it later
 
-  if(auto interrupts = exception.interruptsPending()) {
+  /*if(auto interrupts = exception.interruptsPending()) {
     debugger.interrupt(scc.cause.interruptPending);
     exception.interrupt();
-  }
+  }*/
   exception.triggered = 0;
 
   //When a branch is detected, check if we need to hook a  bios call

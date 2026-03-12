@@ -18,14 +18,14 @@ namespace ares::PlayStation {
 
 
 
-ares::PlayStation::CPU cpu;
-sfc32_state rstate;
+ares::PlayStation::CPU cpu{};
+sfc32_state rstate{};
 
 struct test_state {
     struct {
         u32 R[32];
         u32 hi{}, lo{};
-        u32 EPC{};
+        u32 EPC{}, TAR{}, CAUSE{};
         u32 PC{};
 
         struct {
@@ -136,7 +136,16 @@ void random_initial_state(test_state &s) {
     s.cpu.hi = sfc32(rstate);
     s.cpu.lo = sfc32(rstate);
     s.cpu.EPC = sfc32(rstate);
-    s.cpu.PC = sfc32(rstate) & 0xEFFFFFFC;
+    s.cpu.TAR = sfc32(rstate);
+    /*
+    data.bit( 2, 6) = scc.cause.exceptionCode;
+    data.bit( 8,15) = scc.cause.interruptPending;
+    data.bit(28,29) = scc.cause.coprocessorError;
+    data.bit(30)    = scc.cause.branchTaken;
+    data.bit(31)    = scc.cause.branchDelay;
+    */
+    s.cpu.CAUSE = sfc32(rstate) & 0b11110000000000001111111101111100;
+    s.cpu.PC = test.opcode_addr;
 
     // Now look into the pipeline and opcodes!!!
     // 1/4 chance for a register delay, we won't put in a branch-branch-delay on purpose...
@@ -151,21 +160,20 @@ void random_initial_state(test_state &s) {
 
     // 1/4 chance for a load delay
     if ((sfc32(rstate) & 3) == 0) {
-
-        auto &t = s.cpu.delay.load;
-        t.target = 0;
-        while (t.target == 0) {
-            t.target = sfc32(rstate) & 31;
+        auto &rt = s.cpu.delay.load;
+        rt.target = 0;
+        while (rt.target == 0) {
+            rt.target = sfc32(rstate) & 31;
         }
-        t.val = sfc32(rstate);
+        rt.val = sfc32(rstate);
     }
 
     // 1/16 chance for a branch delay slot
     if ((sfc32(rstate) & 15) == 0) {
-        auto &t = s.cpu.delay.branch;
-        t.slot = true;
-        t.take = true;
-        t.target = sfc32(rstate) & 0xEFFFFFFC;
+        auto &rb = s.cpu.delay.branch;
+        rb.slot = true;
+        rb.take = true;
+        rb.target = sfc32(rstate) & 0xEFFFFFFC;
     }
 }
 
@@ -178,6 +186,13 @@ void copy_state_from_cpu(test_state &s) {
     s.cpu.hi = cpu.ipu.hi;
     s.cpu.lo = cpu.ipu.lo;
     s.cpu.EPC = cpu.scc.epc;
+    s.cpu.TAR = cpu.scc.targetAddress;
+    u32 o = cpu.scc.cause.exceptionCode << 2;
+    o |= cpu.scc.cause.interruptPending << 8;
+    o |= cpu.scc.cause.coprocessorError << 28;
+    o |= cpu.scc.cause.branchTaken << 30;
+    o |= cpu.scc.cause.branchDelay << 31;
+    s.cpu.CAUSE = o;
     s.cpu.PC = cpu.ipu.pc;
     auto &b = s.cpu.delay.branch;
     b.target = cpu.delay.branch[0].address;
@@ -206,9 +221,16 @@ void copy_state_to_cpu(test_state &s) {
     cpu.ipu.hi = s.cpu.hi;
     cpu.ipu.lo = s.cpu.lo;
     cpu.scc.epc = s.cpu.EPC;
+    cpu.scc.targetAddress = s.cpu.TAR;
+    cpu.scc.cause.exceptionCode = (s.cpu.CAUSE >> 2) & 0x1F;
+    cpu.scc.cause.interruptPending = (s.cpu.CAUSE >> 8) & 0xFF;
+    cpu.scc.cause.coprocessorError = (s.cpu.CAUSE >> 28) & 3;
+    cpu.scc.cause.branchTaken = (s.cpu.CAUSE >> 30) & 1;
+    cpu.scc.cause.branchDelay = (s.cpu.CAUSE >> 31) & 1;
     cpu.ipu.pb  = s.cpu.PC - 4; // prev
     cpu.ipu.pc = s.cpu.PC;
     cpu.ipu.pd = s.cpu.PC + 4;
+    //printf("\nSET PC TO %08x vs. %08x", cpu.ipu.pc, test.opcode_addr);
     for (auto &b : cpu.delay.branch) {
         b.address = 0;
         b.slot = false;
@@ -239,8 +261,12 @@ u32 do_fetch(void *p, u32 addr, u8 sz, bool use_cycles) {
     //return test.opcodes[4];
     //if (addr < test.base_addr)
     u32 v;
+    //printf("\nFETCH from %08x (TEST:%08x)", addr, test.opcode_addr);
     if (addr == test.opcode_addr) v = test.opcode;
-    else v = sfc32(rstate);
+    else {
+        printf("\nWARN BAD OPCODE FETCH!?");
+        v = 0;
+    }
     if (use_cycles) {
         auto &t = test.cycles[cpu.accruedCycles];
         if (t.actions != NOACTION) printf("\nWARN DUPE CYCLE");
@@ -286,9 +312,9 @@ void do_write(void *p, u32 addr, u8 sz, u32 val) {
 
 u32 gen_opcode(testitem &t) {
     u32 bits;
-    if (t.first_op == 1) { // BLTZ, BGEZ, BLTZAL, BGEZAL
+    if (t.first_op == 1) { // BLTZ, BGEZ, BLTZAL, BGEZAL aka BCondZ
         bits = sfc32(rstate) & 0b00000011111000001111111111111111;
-        bits |= (1 < 26);
+        bits |= (1 << 26);
         u32 bits5 = (sfc32(rstate) & 31);
         bits |= (bits5 << 16);
     }
@@ -309,6 +335,8 @@ void write_state(test_state &s, FILE *fp) {
     cW32(s.cpu.hi);
     cW32(s.cpu.lo);
     cW32(s.cpu.EPC);
+    cW32(s.cpu.TAR);
+    cW32(s.cpu.CAUSE);
     cW32(s.cpu.PC);
     cW32(s.cpu.delay.branch.target);
     cW32(s.cpu.delay.branch.slot);
@@ -334,6 +362,7 @@ void write_test(FILE *fp) {
 
 void make_opcode_test(testitem &t) {
     char PATH[500];
+    cpu.power(true);
     printf("\n\nMAKE TEST %s", t.name);
     snprintf(PATH, sizeof(PATH), "/Users/dave/dev/r3000/v1/%s.json.bin", t.name);
     FILE *fp = fopen(PATH, "wb");
@@ -350,9 +379,9 @@ void make_opcode_test(testitem &t) {
         for (u32 i = 0; i < 20; i++) {
             sfc32(rstate);
         }
-        random_initial_state(test.initial);
         test.opcode_addr = sfc32(rstate) & 0xEFFFFFFC;
         test.opcode = gen_opcode(t);
+        random_initial_state(test.initial);
 
         test.num_cycles = 0;
         for (auto &c : test.cycles) {
@@ -384,6 +413,7 @@ auto nall::main(Arguments arguments) -> void {
     cpu.test_read = &do_read;
     cpu.test_write = &do_write;
     cpu.test_fetch = &do_fetch;
+    cpu.power(false);
 
     for (auto & t : testitems) {
       make_opcode_test(t);
